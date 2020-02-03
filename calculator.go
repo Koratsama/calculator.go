@@ -11,46 +11,72 @@ import (
 
 func main() {
 	for {
+		fmt.Println("Please enter an expression in the following format:\n(num1) (operand) (num2)\nType 'exit' to stop the calculator")
 		scanner := bufio.NewScanner(os.Stdin)
 		fmt.Print("goCalculator>")
+		var lastResult float64 = 0.0
 		for scanner.Scan() {
 			var expression string = scanner.Text()
 			if expression == "exit" {
 				os.Exit(0)
 			}
-			res, err := processExpression(expression)
+			res, err := processExpression(expression, lastResult)
 			if err != nil {
 				fmt.Println(err)
 			} else {
 				fmt.Println(expression + " =", res)
 			}
+			lastResult = res
 			fmt.Print("goCalculator>")
 		}
 	}
 }
 
-func processExpression(e string) (float64, error) {
+func processExpression(e string, last float64) (float64, error) {
 	result := 0.0
 	c := strings.Split(e, " ")
-	if len(c)-1 < 2 {
-		return 0.0, errors.New("error: some arguments are not supplied")
-	}
-	num1, num2, err := parseArgs(c)
-	if err != nil {
-		return 0.0, err
-	}
-	switch c[1] {
-	case "*":
-		result = num1 * num2
-	case "/":
-		if num2 == 0.0 {
-			return 0.0, errors.New("error: you tried to divide by zero.")
+	if last != 0.0 && (c[0] == "*" || c[0] == "/" || c[0] == "+" || c[0] == "-") {
+		if len(c)-1 < 1 {
+			return 0.0, errors.New("error: missing an argument.")
 		}
-		result = num1 / num2
-	case "+":
-		result = num1 + num2
-	case "-":
-		result = num1 - num2
+		num2, err := strconv.ParseFloat(c[1], 64)
+		if err != nil {
+			return 0.0, errors.New("error: incorrect Argument type.")
+		}
+		switch c[0] {
+		case "*":
+			result = last * num2
+		case "/":
+			if num2 == 0.0 {
+				return 0.0, errors.New("error: cannot divide by zero.")
+			}
+			result = last / num2
+		case "+":
+			result = last + num2
+		case "-":
+			result = last - num2
+		}
+	} else {
+		if len(c)-1 < 2 {
+			return 0.0, errors.New("error: missing some arguments.")
+		}
+		num1, num2, err := parseArgs(c)
+		if err != nil {
+			return 0.0, err
+		}
+		switch c[1] {
+		case "*":
+			result = num1 * num2
+		case "/":
+			if num2 == 0.0 {
+				return 0.0, errors.New("error: cannot divide by zero.")
+			}
+			result = num1 / num2
+		case "+":
+			result = num1 + num2
+		case "-":
+			result = num1 - num2
+		}
 	}
 	return result, nil
 }
