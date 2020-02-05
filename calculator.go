@@ -11,7 +11,7 @@ import (
 
 func main() {
 	for {
-		fmt.Println("Please enter an expression in the following format:\n(num1) (operand) (num2)\nType 'exit' to stop the calculator")
+		fmt.Println("Please enter an expression in the following format:\n(num1) (operator) (num2)\nType 'exit' to stop the calculator")
 		scanner := bufio.NewScanner(os.Stdin)
 		fmt.Print("goCalculator>")
 		var lastResult float64 = 0.0
